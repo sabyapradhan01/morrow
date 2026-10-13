@@ -1,0 +1,12 @@
+.git
+.github
+.vscode
+.idea
+target
+*.log
+.env
+.env.*
+!.env.example
+wallet_*.zip
+*.pem
+*.key

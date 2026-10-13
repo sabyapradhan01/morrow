@@ -12,6 +12,7 @@
   let dataRows = [];
   let searchValue = '';
   let editorSpec = null;
+  let sqlWorkbenchEnabled = false;
 
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const money = value => new Intl.NumberFormat('en-IN', {style:'currency',currency:'INR',minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(value || 0));
@@ -57,7 +58,10 @@
     $('#admin-name').textContent = summary.fullName || 'Administrator';
     $('#admin-email-label').textContent = summary.email || '';
     showLoginError('');
-    loadPage('overview');
+    (async () => {
+      await configureAdminFeatures();
+      await loadPage('overview');
+    })();
   }
 
   loginForm.addEventListener('submit', async event => {
@@ -83,6 +87,22 @@
     dashboard.hidden = true; loginView.hidden = false; loginForm.reset(); showLoginError('You have signed out.');
   });
 
+  async function configureAdminFeatures() {
+    try {
+      const features = await api('/api/admin/features');
+      sqlWorkbenchEnabled = features.sqlWorkbenchEnabled === true;
+    } catch (_) {
+      // Fail closed if the feature flag cannot be confirmed.
+      sqlWorkbenchEnabled = false;
+    }
+    const sqlNav = $('.nav-link[data-admin-page="sql"]');
+    if (sqlNav) sqlNav.hidden = !sqlWorkbenchEnabled;
+    const warning = $('.admin-warning');
+    if (warning && !sqlWorkbenchEnabled) {
+      warning.textContent = 'ADMIN ACCESS — Hosted safety mode: raw SQL execution is disabled. Use the local academic setup for DDL/DML demonstrations. Top-ups are simulated.';
+    }
+  }
+
   const pageMeta = {
     overview:{title:'System overview'}, users:{title:'User management',heading:'Users',desc:'Create, edit, role-assign, suspend or close accounts.',url:'/api/admin/users'},
     wallets:{title:'Wallet management',heading:'Wallets',desc:'Review wallet ownership and adjust balances with a corresponding audit transaction and ledger entry.',url:'/api/admin/wallets'},
@@ -92,6 +112,7 @@
   };
 
   async function loadPage(next) {
+    if (next === 'sql' && !sqlWorkbenchEnabled) { notify('The raw SQL workbench is disabled on this hosted instance. Use local SQL*Plus for DDL/DML demos.', true); next = 'overview'; }
     page = pageMeta[next] ? next : 'overview';
     $$('.nav-link').forEach(btn => btn.classList.toggle('active', btn.dataset.adminPage === page));
     $('#admin-page-title').textContent = pageMeta[page].title;

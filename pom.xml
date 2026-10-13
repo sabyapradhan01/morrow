@@ -18,6 +18,7 @@
 
     <properties>
         <java.version>21</java.version>
+        <oracle.jdbc.artifactId>ojdbc8</oracle.jdbc.artifactId>
         <oracle.jdbc.version>12.2.0.1</oracle.jdbc.version>
     </properties>
 
@@ -44,7 +45,7 @@
         </dependency>
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc8</artifactId>
+            <artifactId>${oracle.jdbc.artifactId}</artifactId>
             <version>${oracle.jdbc.version}</version>
         </dependency>
         <dependency>
@@ -62,4 +63,15 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <!-- Container/cloud build uses a current JDBC driver compatible with JDK 21 and Autonomous Database.
+             The default local profile remains on the legacy driver used with the user's Oracle XE 11g setup. -->
+        <profile>
+            <id>cloud</id>
+            <properties>
+                <oracle.jdbc.artifactId>ojdbc11</oracle.jdbc.artifactId>
+                <oracle.jdbc.version>23.26.3.0.0</oracle.jdbc.version>
+            </properties>
+        </profile>
+    </profiles>
 </project>

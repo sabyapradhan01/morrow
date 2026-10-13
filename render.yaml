@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: morrow-wallet-demo
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: ORACLE_JDBC_URL
+        sync: false
+      - key: ORACLE_DB_USER
+        sync: false
+      - key: ORACLE_DB_PASSWORD
+        sync: false
+      - key: SESSION_COOKIE_SECURE
+        value: "true"
+      - key: MORROW_ADMIN_SQL_ENABLED
+        value: "false"

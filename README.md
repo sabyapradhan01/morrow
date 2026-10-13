@@ -1,7 +1,8 @@
-# Morrow — Digital Wallet Management System (Java + JDBC + Oracle)
+## Deployment
 
-Morrow is a PAT 4 academic project using **Java 21, Spring Boot 3.5, Thymeleaf, Spring JDBC, Oracle Database, and the Oracle JDBC Thin driver (`ojdbc8` 12.2 legacy driver line)**. It is not a real financial service and does not connect to a bank. The user account, balances, simulated top-ups, transfers, transaction history, and wallet ledger are persisted in Oracle.
+Deployment instructions and cloud configuration are in [`DEPLOYMENT_GUIDE.md`](DEPLOYMENT_GUIDE.md). Do not advertise a live URL until the service has deployed and `/health/db` returns `status: ok`.
 
+The hosted safety configuration disables raw SQL execution (`MORROW_ADMIN_SQL_ENABLED=false`). Use local SQL*Plus for unrestricted classroom DDL/DML demonstrations. All wallet funds are simulated.
 ## What's implemented in this release
 
 - Account registration and sign-in against `USERS`.
