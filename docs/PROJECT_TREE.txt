@@ -1,38 +1,28 @@
-Morrow-Wallet-JDBC-Phase1/
+Morrow-Neon-Cloud/
 ├── pom.xml
+├── Dockerfile
+├── render.yaml
+├── .dockerignore
+├── .gitignore
+├── .env.example
 ├── README.md
 ├── ADMIN_SETUP_AND_DEMO.md
-├── .gitignore
 ├── database/
-│   ├── 00_create_app_user.sql
-│   ├── 01_schema.sql
-│   ├── 02_sample_dml.sql
-│   ├── 03_useful_queries.sql
-│   ├── 04_reset_demo_data.sql
-│   ├── 05_rename_existing_tables.sql
-│   └── 06_admin_role_migration.sql
+│   ├── 01_schema_postgresql.sql
+│   ├── 02_bootstrap_admin_postgresql.sql
+│   └── 03_diagnostic_queries_postgresql.sql
 ├── docs/
-│   ├── ARCHITECTURE.md
-│   └── PROJECT_TREE.txt
-└── src/
-    ├── main/
-    │   ├── java/com/morrow/wallet/
-    │   │   ├── MorrowWalletApplication.java
-    │   │   ├── admin/                 # Admin REST API, CRUD services, SQL workbench
-    │   │   ├── api/                   # API errors and responses
-    │   │   ├── auth/                  # User/admin login and role sessions
-    │   │   ├── wallet/                # User wallet APIs and transaction services
-    │   │   └── web/                   # Page routes, health endpoints, headers
-    │   └── resources/
-    │       ├── application.properties
-    │       ├── templates/
-    │       │   ├── index.html         # User wallet UI
-    │       │   └── admin.html         # Admin login + control room
-    │       └── static/
-    │           ├── css/
-    │           │   ├── app.css
-    │           │   └── admin.css
-    │           └── js/
-    │               ├── app.js
-    │               └── admin.js
-    └── test/java/com/morrow/wallet/MorrowWalletApplicationTests.java
+│   └── ARCHITECTURE.md
+└── src/main/
+    ├── java/com/morrow/wallet/
+    │   ├── admin/
+    │   ├── api/
+    │   ├── auth/
+    │   ├── wallet/
+    │   ├── web/
+    │   └── MorrowWalletApplication.java
+    └── resources/
+        ├── application.properties
+        ├── templates/index.html
+        ├── templates/admin.html
+        └── static/css, static/js

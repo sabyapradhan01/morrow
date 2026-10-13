@@ -1,6 +1,6 @@
 /*
 
- * Morrow Premium PAT 4 — Java/Spring + JDBC + Oracle frontend.
+ * Morrow Cloud — Java/Spring + JDBC + PostgreSQL frontend.
 
  * Authentication, wallet balances, top-ups, transfers and transaction history
 
@@ -196,9 +196,9 @@
 
     $('#auth-subtitle').textContent = registering
 
-      ? 'Create an account to open your own Oracle-backed wallet.'
+      ? 'Create an account to open your own database-backed wallet.'
 
-      : 'Sign in to access your Oracle-backed wallet.';
+      : 'Sign in to access your database-backed wallet.';
 
     loginError.hidden = true;
 
@@ -824,7 +824,7 @@
 
       gotoPage('transactions');
 
-      notify(`${money(requestBody.amount)} transfer recorded securely in Oracle.`);
+      notify(`${money(requestBody.amount)} transfer recorded securely in the database.`);
 
     } catch (error) {
 
@@ -872,7 +872,7 @@
 
       closeModal('add-money-modal');
 
-      notify(`${money(amount)} simulated credit securely saved in Oracle.`);
+      notify(`${money(amount)} simulated credit securely saved in the database.`);
 
     } catch (error) {
 
@@ -930,7 +930,7 @@
 
     URL.revokeObjectURL(url);
 
-    notify('Exported the currently visible Oracle-backed transactions as CSV.');
+    notify('Exported the currently visible database-backed transactions as CSV.');
 
   });
 

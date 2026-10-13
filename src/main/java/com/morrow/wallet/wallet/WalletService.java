@@ -34,8 +34,8 @@ public class WalletService {
     public Map<String, Object> summary(long userId) {
         List<Map<String, Object>> rows = jdbc.query("""
                 SELECT u.USER_ID, u.FULL_NAME, u.EMAIL, u.ROLE, w.WALLET_ID, w.CURRENCY_CODE, w.BALANCE,
-                       NVL((SELECT SUM(t.AMOUNT) FROM TRANSACTIONS t WHERE t.RECEIVER_WALLET_ID = w.WALLET_ID AND t.STATUS = 'COMPLETED'), 0) AS TOTAL_RECEIVED,
-                       NVL((SELECT SUM(t.AMOUNT) FROM TRANSACTIONS t WHERE t.SENDER_WALLET_ID = w.WALLET_ID AND t.STATUS = 'COMPLETED'), 0) AS TOTAL_SENT
+                       COALESCE((SELECT SUM(t.AMOUNT) FROM TRANSACTIONS t WHERE t.RECEIVER_WALLET_ID = w.WALLET_ID AND t.STATUS = 'COMPLETED'), 0) AS TOTAL_RECEIVED,
+                       COALESCE((SELECT SUM(t.AMOUNT) FROM TRANSACTIONS t WHERE t.SENDER_WALLET_ID = w.WALLET_ID AND t.STATUS = 'COMPLETED'), 0) AS TOTAL_SENT
                 FROM USERS u JOIN WALLETS w ON w.USER_ID = u.USER_ID
                 WHERE u.USER_ID = ? AND u.STATUS = 'ACTIVE' AND w.CURRENCY_CODE = 'INR'
                 """, (rs, rowNum) -> {
@@ -60,21 +60,20 @@ public class WalletService {
     public List<TransactionView> transactions(long userId) {
         long walletId = getWalletId(userId);
         return jdbc.query("""
-                SELECT * FROM (
-                    SELECT t.TRANSACTION_ID, t.REFERENCE_CODE, t.TRANSACTION_TYPE, t.AMOUNT,
-                           t.STATUS, t.DESCRIPTION, t.CREATED_AT,
-                           CASE WHEN t.TRANSACTION_TYPE = 'TOP_UP' THEN 'Wallet top-up'
-                                WHEN t.SENDER_WALLET_ID = ? THEN NVL(receiver_user.FULL_NAME, 'Morrow user')
-                                ELSE NVL(sender_user.FULL_NAME, 'Morrow user') END AS COUNTERPARTY,
-                           CASE WHEN t.RECEIVER_WALLET_ID = ? THEN t.AMOUNT ELSE -t.AMOUNT END AS SIGNED_AMOUNT
-                    FROM TRANSACTIONS t
-                    LEFT JOIN WALLETS sender_wallet ON sender_wallet.WALLET_ID = t.SENDER_WALLET_ID
-                    LEFT JOIN USERS sender_user ON sender_user.USER_ID = sender_wallet.USER_ID
-                    LEFT JOIN WALLETS receiver_wallet ON receiver_wallet.WALLET_ID = t.RECEIVER_WALLET_ID
-                    LEFT JOIN USERS receiver_user ON receiver_user.USER_ID = receiver_wallet.USER_ID
-                    WHERE t.SENDER_WALLET_ID = ? OR t.RECEIVER_WALLET_ID = ?
-                    ORDER BY t.CREATED_AT DESC, t.TRANSACTION_ID DESC
-                ) WHERE ROWNUM <= 200
+                SELECT t.TRANSACTION_ID, t.REFERENCE_CODE, t.TRANSACTION_TYPE, t.AMOUNT,
+                       t.STATUS, t.DESCRIPTION, t.CREATED_AT,
+                       CASE WHEN t.TRANSACTION_TYPE = 'TOP_UP' THEN 'Wallet top-up'
+                            WHEN t.SENDER_WALLET_ID = ? THEN COALESCE(receiver_user.FULL_NAME, 'Morrow user')
+                            ELSE COALESCE(sender_user.FULL_NAME, 'Morrow user') END AS COUNTERPARTY,
+                       CASE WHEN t.RECEIVER_WALLET_ID = ? THEN t.AMOUNT ELSE -t.AMOUNT END AS SIGNED_AMOUNT
+                FROM TRANSACTIONS t
+                LEFT JOIN WALLETS sender_wallet ON sender_wallet.WALLET_ID = t.SENDER_WALLET_ID
+                LEFT JOIN USERS sender_user ON sender_user.USER_ID = sender_wallet.USER_ID
+                LEFT JOIN WALLETS receiver_wallet ON receiver_wallet.WALLET_ID = t.RECEIVER_WALLET_ID
+                LEFT JOIN USERS receiver_user ON receiver_user.USER_ID = receiver_wallet.USER_ID
+                WHERE t.SENDER_WALLET_ID = ? OR t.RECEIVER_WALLET_ID = ?
+                ORDER BY t.CREATED_AT DESC, t.TRANSACTION_ID DESC
+                LIMIT 200
                 """, (rs, rowNum) -> mapTransaction(rs), walletId, walletId, walletId, walletId);
     }
 

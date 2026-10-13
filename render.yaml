@@ -7,12 +7,13 @@ services:
     dockerfilePath: ./Dockerfile
     dockerContext: .
     healthCheckPath: /health
+    autoDeploy: true
     envVars:
-      - key: ORACLE_JDBC_URL
+      - key: NEON_JDBC_URL
         sync: false
-      - key: ORACLE_DB_USER
+      - key: NEON_DB_USER
         sync: false
-      - key: ORACLE_DB_PASSWORD
+      - key: NEON_DB_PASSWORD
         sync: false
       - key: SESSION_COOKIE_SECURE
         value: "true"

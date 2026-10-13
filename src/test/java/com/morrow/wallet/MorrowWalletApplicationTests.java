@@ -7,6 +7,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 class MorrowWalletApplicationTests {
     @Test
     void applicationContextLoads() {
-        // Confirms Spring can wire the Phase 1 application. The Oracle connection is tested separately at /health/db.
+        // Confirms Spring can wire the cloud application. PostgreSQL connectivity is tested separately at /health/db.
     }
 }

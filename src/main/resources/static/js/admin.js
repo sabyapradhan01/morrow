@@ -48,7 +48,7 @@
     if (yes) { button.dataset.oldText = button.textContent; button.disabled = true; button.textContent = text; }
     else { button.disabled = false; if (button.dataset.oldText) button.textContent = button.dataset.oldText; delete button.dataset.oldText; }
   }
-  function showAdmin(summary) {
+  async function showAdmin(summary) {
     if (!summary || summary.role !== 'ADMIN') {
       loginView.hidden = false; dashboard.hidden = true;
       showLoginError('This account is not an active administrator. Use the user login for USER accounts.');
@@ -58,10 +58,8 @@
     $('#admin-name').textContent = summary.fullName || 'Administrator';
     $('#admin-email-label').textContent = summary.email || '';
     showLoginError('');
-    (async () => {
-      await configureAdminFeatures();
-      await loadPage('overview');
-    })();
+    await loadCapabilities();
+    await loadPage('overview');
   }
 
   loginForm.addEventListener('submit', async event => {
@@ -75,7 +73,7 @@
       const summary = await api('/api/auth/admin-login', {method:'POST', body:{email,password}});
       $('#admin-password').value = '';
       if (summary.role !== 'ADMIN') throw new Error('This account is not assigned the ADMIN role.');
-      showAdmin(summary);
+      await showAdmin(summary);
       notify('Administrator session established.');
     } catch (error) { showLoginError(error.message); }
     finally { setBusy(button, false); }
@@ -87,22 +85,6 @@
     dashboard.hidden = true; loginView.hidden = false; loginForm.reset(); showLoginError('You have signed out.');
   });
 
-  async function configureAdminFeatures() {
-    try {
-      const features = await api('/api/admin/features');
-      sqlWorkbenchEnabled = features.sqlWorkbenchEnabled === true;
-    } catch (_) {
-      // Fail closed if the feature flag cannot be confirmed.
-      sqlWorkbenchEnabled = false;
-    }
-    const sqlNav = $('.nav-link[data-admin-page="sql"]');
-    if (sqlNav) sqlNav.hidden = !sqlWorkbenchEnabled;
-    const warning = $('.admin-warning');
-    if (warning && !sqlWorkbenchEnabled) {
-      warning.textContent = 'ADMIN ACCESS — Hosted safety mode: raw SQL execution is disabled. Use the local academic setup for DDL/DML demonstrations. Top-ups are simulated.';
-    }
-  }
-
   const pageMeta = {
     overview:{title:'System overview'}, users:{title:'User management',heading:'Users',desc:'Create, edit, role-assign, suspend or close accounts.',url:'/api/admin/users'},
     wallets:{title:'Wallet management',heading:'Wallets',desc:'Review wallet ownership and adjust balances with a corresponding audit transaction and ledger entry.',url:'/api/admin/wallets'},
@@ -112,8 +94,7 @@
   };
 
   async function loadPage(next) {
-    if (next === 'sql' && !sqlWorkbenchEnabled) { notify('The raw SQL workbench is disabled on this hosted instance. Use local SQL*Plus for DDL/DML demos.', true); next = 'overview'; }
-    page = pageMeta[next] ? next : 'overview';
+    page = (pageMeta[next] && (next !== 'sql' || sqlWorkbenchEnabled)) ? next : 'overview';
     $$('.nav-link').forEach(btn => btn.classList.toggle('active', btn.dataset.adminPage === page));
     $('#admin-page-title').textContent = pageMeta[page].title;
     $('#admin-overview-panel').hidden = page !== 'overview';
@@ -127,8 +108,22 @@
     else if (pageMeta[page].url) {
       $('#data-heading').textContent = pageMeta[page].heading;
       $('#data-description').textContent = pageMeta[page].desc;
-      $('#data-eyebrow').textContent = 'LIVE ORACLE RECORDS';
+      $('#data-eyebrow').textContent = 'LIVE DATABASE RECORDS';
       await loadRecords();
+    }
+  }
+
+  async function loadCapabilities() {
+    sqlWorkbenchEnabled = false;
+    try {
+      const capabilities = await api('/api/admin/capabilities');
+      sqlWorkbenchEnabled = capabilities.sqlWorkbenchEnabled === true;
+    } catch (_) { sqlWorkbenchEnabled = false; }
+    const sqlNav = $('.nav-link[data-admin-page="sql"]');
+    if (sqlNav) sqlNav.hidden = !sqlWorkbenchEnabled;
+    const sqlPanel = $('#admin-sql-panel');
+    if (!sqlWorkbenchEnabled && sqlPanel) {
+      sqlPanel.innerHTML = '<div class="sql-warning"><b>SQL workbench disabled.</b> The hosted demo disables unrestricted SQL execution to protect live data. Use the Users, Wallets, Transactions and Ledger pages for supported administrative changes. Run ad-hoc SQL in the Neon SQL Editor.</div>';
     }
   }
 
@@ -153,7 +148,7 @@
   }
 
   async function loadRecords() {
-    try { dataRows = await api(pageMeta[page].url); renderRecords(); }
+    try { dataRows = (await api(pageMeta[page].url)).map(row => Object.fromEntries(Object.entries(row).map(([key, value]) => [key.toUpperCase(), value]))); renderRecords(); }
     catch (error) { dataRows = []; renderRecords(); notify(error.message, true); }
   }
   $('#table-search').addEventListener('input', event => { searchValue = event.target.value.toLowerCase().trim(); renderRecords(); });
@@ -185,7 +180,7 @@
     const filtered = dataRows.filter(row => !searchValue || Object.entries(row).some(([k,v]) => k !== 'PASSWORD_HASH' && String(v ?? '').toLowerCase().includes(searchValue)));
     const columns = columnsFor(page);
     $('#admin-table-head').innerHTML = `<tr>${columns.map(([key,label])=>`<th>${escapeHtml(label)}</th>`).join('')}</tr>`;
-    $('#admin-table-body').innerHTML = filtered.length ? filtered.map(row => `<tr>${columns.map(([key])=>`<td>${key==='ACTIONS'?actionButtons(row):tableValue(key,row[key])}</td>`).join('')}</tr>`).join('') : `<tr><td class="empty-cell" colspan="${columns.length}">No matching Oracle records.</td></tr>`;
+    $('#admin-table-body').innerHTML = filtered.length ? filtered.map(row => `<tr>${columns.map(([key])=>`<td>${key==='ACTIONS'?actionButtons(row):tableValue(key,row[key])}</td>`).join('')}</tr>`).join('') : `<tr><td class="empty-cell" colspan="${columns.length}">No matching database records.</td></tr>`;
     $('#table-record-count').textContent = `${filtered.length} displayed / ${dataRows.length} records`;
   }
 
@@ -194,7 +189,7 @@
   $('#create-user-form').addEventListener('submit', async event => {
     event.preventDefault(); const form = event.currentTarget; const data = Object.fromEntries(new FormData(form).entries());
     const button = $('button[type="submit"]', form); setBusy(button,true,'Creating…');
-    try { await api('/api/admin/users',{method:'POST',body:data}); form.reset(); form.hidden=true; notify('User and INR wallet created in Oracle.'); await loadRecords(); await loadOverview(); }
+    try { await api('/api/admin/users',{method:'POST',body:data}); form.reset(); form.hidden=true; notify('User and INR wallet created in the database.'); await loadRecords(); await loadOverview(); }
     catch(error){notify(error.message,true);} finally{setBusy(button,false);}
   });
 
@@ -212,7 +207,7 @@
     event.preventDefault(); if (!editorSpec) return;
     const values = Object.fromEntries(new FormData(event.currentTarget).entries());
     const button = $('#dialog-save'); setBusy(button,true,'Saving…');
-    try { await editorSpec(values); $('#record-dialog').close(); await loadRecords(); await loadOverview(); notify('Change saved to Oracle.'); }
+    try { await editorSpec(values); $('#record-dialog').close(); await loadRecords(); await loadOverview(); notify('Change saved to the database.'); }
     catch(error){notify(error.message,true);} finally{setBusy(button,false);}
   });
   $('#dialog-close').addEventListener('click',()=>$('#record-dialog').close());
@@ -259,7 +254,7 @@
   $('#run-sql').addEventListener('click', async () => {
     const sql = $('#sql-input').value.trim(); if (!sql) {notify('Enter a SQL statement first.',true);return;}
     const first = (sql.match(/^([A-Za-z]+)/) || [null, ''])[1].toUpperCase();
-    if (!['SELECT','WITH'].includes(first) && !confirm(`Execute this ${first || 'SQL'} statement against the live Oracle schema?\n\nDDL can commit implicitly. DML will modify real project records. Continue only if you understand the effect.`)) return;
+    if (!['SELECT','WITH'].includes(first) && !confirm(`Execute this ${first || 'SQL'} statement against the live database?\n\nDDL can commit implicitly. DML will modify real project records. Continue only if you understand the effect.`)) return;
     const button=$('#run-sql'); setBusy(button,true,'Executing…'); $('#sql-result-status').textContent='Executing…';
     try { const result=await api('/api/admin/sql',{method:'POST',body:{sql}}); renderSqlResult(result); $('#sql-result-status').textContent=`SUCCESS · ${result.command}`; $('#sql-result-status').className='sql-status-success'; }
     catch(error){ $('#sql-result').innerHTML=`<pre>${escapeHtml(error.message)}</pre>`; $('#sql-result-status').textContent='FAILED'; $('#sql-result-status').className='sql-status-error'; }
@@ -275,7 +270,7 @@
   }
 
   async function bootstrap() {
-    try { const current = await api('/api/auth/me'); if (current.role === 'ADMIN') showAdmin(current); }
+    try { const current = await api('/api/auth/me'); if (current.role === 'ADMIN') await showAdmin(current); }
     catch (_) { /* No existing admin session: show admin login. */ }
   }
   bootstrap();

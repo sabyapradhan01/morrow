@@ -11,11 +11,3 @@ application-local.properties
 !.env.example
 *.sqlite
 *.db
-
-# Deployment and local secrets
-.env
-.env.*
-!.env.example
-*.pem
-*.key
-wallet_*.zip

@@ -150,7 +150,7 @@
 
           <h2 id="auth-title">Good to see you.</h2>
 
-          <p class="form-subtitle" id="auth-subtitle">Sign in to access your Oracle-backed wallet.</p>
+          <p class="form-subtitle" id="auth-subtitle">Sign in to access your database-backed wallet.</p>
 
         </div>
 
@@ -276,13 +276,13 @@
 
             <strong>Protected by a server session</strong>
 
-            <small>Your password is stored as a BCrypt hash. Wallet balances and simulated transaction records are stored reliably in Oracle through JDBC.</small>
+            <small>Your password is stored as a BCrypt hash. Wallet balances and simulated transaction records are stored reliably in PostgreSQL through JDBC.</small>
 
           </span>
 
         </div>
 
-        <div class="login-bottom"><span>NO REAL MONEY MOVES IN THIS DEMO</span><span>JAVA · JDBC · ORACLE</span></div>
+        <div class="login-bottom"><span>NO REAL MONEY MOVES IN THIS DEMO</span><span>JAVA · JDBC · POSTGRESQL</span></div>
 
       </div>
 
@@ -384,7 +384,7 @@
 
         <span class="banner-dot"></span>
 
-        <span><strong>Academic simulation</strong> — account and wallet records are securely saved in Oracle; top-ups do not contact a bank.</span>
+        <span><strong>Academic simulation</strong> — account and wallet records are securely saved in the database; top-ups do not contact a bank.</span>
 
         <button id="dismiss-banner" type="button" aria-label="Dismiss notice"><svg class="icon"><use href="#i-close"/></svg></button>
 
@@ -428,7 +428,7 @@
 
               <div class="balance-value" id="balance-value">₹ 0.00</div>
 
-              <span class="growth-pill"><svg class="icon"><use href="#i-shield"/></svg> Oracle Secured</span>
+              <span class="growth-pill"><svg class="icon"><use href="#i-shield"/></svg> Database Secured</span>
 
               <p>Across your Morrow wallet</p>
 
@@ -468,7 +468,7 @@
 
               <div class="spend-meta">
 
-                <span class="spend-trend">Oracle-backed activity</span>
+                <span class="spend-trend">Database-backed activity</span>
 
                 <span class="micro-label">ALL TIME</span>
 
@@ -574,7 +574,7 @@
 
             <span>MORROW · BUILT FOR CLARITY</span>
 
-            <span>ORACLE · JDBC · SIMULATED FUNDS</span>
+            <span>POSTGRESQL · JDBC · SIMULATED FUNDS</span>
 
           </footer>
 
@@ -668,7 +668,7 @@
 
                 <div class="explainer-icon"><svg class="icon"><use href="#i-shield"/></svg></div>
 
-                <span>Transfers are simulated academic records. Sender and recipient wallet changes are saved atomically in Oracle; no real money moves.</span>
+                <span>Transfers are simulated academic records. Sender and recipient wallet changes are saved atomically in PostgreSQL; no real money moves.</span>
 
               </div>
 
@@ -806,7 +806,7 @@
 
                 <strong id="transaction-count">0</strong>
 
-                <p>Saved in Oracle</p>
+                <p>Saved in PostgreSQL</p>
 
               </div>
 
@@ -846,7 +846,7 @@
 
             <span id="showing-count">SHOWING 0 TRANSACTIONS</span>
 
-            <span>ORACLE RECORDS · SIMULATED FUNDS</span>
+            <span>DATABASE RECORDS · SIMULATED FUNDS</span>
 
           </footer>
 
@@ -1000,7 +1000,7 @@
 
                   <strong>Wallet storage</strong>
 
-                  <small>Account profile, balance, transfers and ledger entries are stored in Oracle.</small>
+                  <small>Account profile, balance, transfers and ledger entries are stored in the database.</small>
 
                 </div>
 
@@ -1058,7 +1058,7 @@
 
         <h2 id="add-modal-title">Add money to Morrow.</h2>
 
-        <p>This records a simulated credit in Oracle. It does not contact a bank or add real funds.</p>
+        <p>This records a simulated credit in PostgreSQL. It does not contact a bank or add real funds.</p>
 
       </div>
 
@@ -1110,7 +1110,7 @@
 
         <h2 id="review-modal-title">Ready to send?</h2>
 
-        <p>Confirming writes a simulated transfer to Oracle and updates both wallet balances atomically.</p>
+        <p>Confirming writes a simulated transfer to PostgreSQL and updates both wallet balances atomically.</p>
 
       </div>
 
@@ -1150,7 +1150,7 @@
 
   </div>
 
-  <div class="prototype-stamp"><i></i> MORROW · JDBC / ORACLE</div>
+  <div class="prototype-stamp"><i></i> MORROW · JDBC / POSTGRESQL</div>
 
   <script th:src="@{/js/app.js}"></script>
 

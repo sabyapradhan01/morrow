@@ -51,7 +51,7 @@ public class AuthController {
         HttpSession session = request.getSession(false);
         SessionUser sessionUser = SessionUser.require(session);
         SessionUser activeUser = authService.findActiveUser(sessionUser.userId());
-        // Refresh the display name/email from Oracle so account changes take effect in an active session.
+        // Refresh the display name/email from PostgreSQL so account changes take effect in an active session.
         activeUser.store(session);
         return walletService.summary(activeUser.userId());
     }

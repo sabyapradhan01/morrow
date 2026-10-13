@@ -26,11 +26,11 @@ public class HealthController {
     @GetMapping("/health/db")
     public ResponseEntity<Map<String, String>> databaseHealth() {
         try {
-            String result = jdbcTemplate.queryForObject("SELECT 'connected' FROM DUAL", String.class);
+            String result = jdbcTemplate.queryForObject("SELECT 'connected'", String.class);
             Map<String, String> body = new LinkedHashMap<>();
             body.put("application", "Morrow Wallet");
-            body.put("database", "Oracle Database");
-            body.put("connectivity", "JDBC Thin Driver");
+            body.put("database", "PostgreSQL (Neon)");
+            body.put("connectivity", "PostgreSQL JDBC Driver");
             body.put("status", "ok");
             body.put("check", result == null ? "query returned no value" : result);
             return ResponseEntity.ok(body);
@@ -38,10 +38,10 @@ public class HealthController {
             // Deliberately avoid returning credentials or driver details to the browser.
             Map<String, String> body = new LinkedHashMap<>();
             body.put("application", "Morrow Wallet");
-            body.put("database", "Oracle Database");
-            body.put("connectivity", "JDBC Thin Driver");
+            body.put("database", "PostgreSQL (Neon)");
+            body.put("connectivity", "PostgreSQL JDBC Driver");
             body.put("status", "unavailable");
-            body.put("message", "Check that Oracle and its listener are running and that ORACLE_JDBC_URL, ORACLE_DB_USER, and ORACLE_DB_PASSWORD are correct.");
+            body.put("message", "Check NEON_JDBC_URL, NEON_DB_USER and NEON_DB_PASSWORD in the hosting environment, and verify the Neon database is available.");
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(body);
         }
     }

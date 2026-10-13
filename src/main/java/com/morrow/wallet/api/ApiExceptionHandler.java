@@ -34,7 +34,7 @@ public class ApiExceptionHandler {
     public ResponseEntity<Map<String, String>> handleDatabase(DataAccessException exception) {
         // Never send SQL, table names, driver messages, or credentials to the browser.
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                .body(Map.of("message", "The database could not complete the request. Check the Oracle connection and schema, then try again."));
+                .body(Map.of("message", "The database could not complete the request. Check the database connection and schema, then try again."));
     }
 
     @ExceptionHandler(Exception.class)

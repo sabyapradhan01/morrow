@@ -8,7 +8,6 @@ import com.morrow.wallet.auth.SessionUser;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,18 +24,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminController {
     private final AdminService adminService;
     private final AuthService authService;
-    private final boolean sqlWorkbenchEnabled;
-    public AdminController(AdminService adminService, AuthService authService,
-                           @Value("${morrow.admin.sql-workbench-enabled:true}") boolean sqlWorkbenchEnabled) {
-        this.adminService = adminService;
-        this.authService = authService;
-        this.sqlWorkbenchEnabled = sqlWorkbenchEnabled;
-    }
+    public AdminController(AdminService adminService, AuthService authService) { this.adminService = adminService; this.authService = authService; }
 
-    @GetMapping("/features") public Map<String,Object> features(HttpServletRequest r) {
-        requireAdmin(r);
-        return Map.of("sqlWorkbenchEnabled", sqlWorkbenchEnabled);
-    }
+    @GetMapping("/capabilities") public Map<String, Boolean> capabilities(HttpServletRequest r) { requireAdmin(r); return Map.of("sqlWorkbenchEnabled", adminService.sqlWorkbenchEnabled()); }
 
     @GetMapping("/overview") public Map<String,Object> overview(HttpServletRequest r) { requireAdmin(r); return adminService.overview(); }
     @GetMapping("/users") public List<Map<String,Object>> users(HttpServletRequest r) { requireAdmin(r); return adminService.users(); }
@@ -75,12 +65,7 @@ public class AdminController {
         requireAdmin(r); adminService.deleteLedger(id); return ResponseEntity.noContent().build();
     }
     @PostMapping("/sql") public Map<String,Object> executeSql(@Valid @RequestBody AdminRequests.SqlCommand body, HttpServletRequest r) {
-        requireAdmin(r);
-        if (!sqlWorkbenchEnabled) {
-            throw new com.morrow.wallet.api.ApiException(HttpStatus.FORBIDDEN,
-                    "The raw SQL workbench is disabled on the hosted demo. Use the local academic environment for DDL/DML demonstrations.");
-        }
-        return adminService.executeSql(body.sql());
+        requireAdmin(r); return adminService.executeSql(body.sql());
     }
 
     private SessionUser requireAdmin(HttpServletRequest request) {

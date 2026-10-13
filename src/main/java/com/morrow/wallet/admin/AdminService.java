@@ -20,6 +20,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -28,6 +29,8 @@ public class AdminService {
     private static final Pattern FIRST_TOKEN = Pattern.compile("^([A-Za-z]+)\\b");
     private final JdbcTemplate jdbc;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
+    @Value("${morrow.admin.sql-workbench-enabled:false}")
+    private boolean sqlWorkbenchEnabled;
 
     public AdminService(JdbcTemplate jdbc) { this.jdbc = jdbc; }
 
@@ -38,7 +41,7 @@ public class AdminService {
         out.put("wallets", count("SELECT COUNT(*) FROM WALLETS"));
         out.put("transactions", count("SELECT COUNT(*) FROM TRANSACTIONS"));
         out.put("ledgerEntries", count("SELECT COUNT(*) FROM LEDGER"));
-        out.put("totalBalance", jdbc.queryForObject("SELECT NVL(SUM(BALANCE), 0) FROM WALLETS", BigDecimal.class));
+        out.put("totalBalance", jdbc.queryForObject("SELECT COALESCE(SUM(BALANCE), 0) FROM WALLETS", BigDecimal.class));
         return out;
     }
 
@@ -126,7 +129,7 @@ public class AdminService {
     public void setWalletBalance(long walletId, BigDecimal requestedBalance) {
         BigDecimal target = normalizeMoney(requestedBalance);
         if (target.signum() < 0 || target.compareTo(new BigDecimal("999999999999.99")) > 0)
-            throw new ApiException(HttpStatus.BAD_REQUEST, "Wallet balance must be non-negative and within Oracle NUMBER range.");
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Wallet balance must be non-negative and within the supported wallet range.");
         BigDecimal current;
         try { current = jdbc.queryForObject("SELECT BALANCE FROM WALLETS WHERE WALLET_ID=? FOR UPDATE", BigDecimal.class, walletId); }
         catch (EmptyResultDataAccessException ex) { throw new ApiException(HttpStatus.NOT_FOUND, "Wallet not found."); }
@@ -204,7 +207,13 @@ public class AdminService {
         }
     }
 
+    public boolean sqlWorkbenchEnabled() { return sqlWorkbenchEnabled; }
+
     public Map<String, Object> executeSql(String rawSql) {
+        if (!sqlWorkbenchEnabled) {
+            throw new ApiException(HttpStatus.FORBIDDEN,
+                    "The raw SQL workbench is disabled on the hosted demo. Use the admin management screens for supported changes.");
+        }
         String sql = rawSql == null ? "" : rawSql.trim();
         if (sql.endsWith(";")) sql = sql.substring(0, sql.length() - 1).trim();
         if (sql.isBlank() || sql.contains(";") || sql.contains("--") || sql.contains("/*") || sql.contains("*/"))
@@ -219,7 +228,7 @@ public class AdminService {
         List<String> ddl = List.of("CREATE", "ALTER", "DROP", "TRUNCATE", "RENAME", "COMMENT");
         List<String> dcl = List.of("GRANT", "REVOKE");
         if (!(reads.contains(command) || dml.contains(command) || ddl.contains(command) || dcl.contains(command)))
-            throw new ApiException(HttpStatus.BAD_REQUEST, "Allowed: SELECT, INSERT, UPDATE, DELETE, MERGE, CREATE, ALTER, DROP, TRUNCATE, RENAME, COMMENT, GRANT, REVOKE. Use SQL*Plus for TCL commands.");
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Allowed: SELECT, INSERT, UPDATE, DELETE, MERGE, CREATE, ALTER, DROP, TRUNCATE, RENAME, COMMENT, GRANT, REVOKE. Use the database console for transaction-control commands.");
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("command", command);
         if (reads.contains(command)) {
@@ -244,7 +253,7 @@ public class AdminService {
             result.put("affectedRows", affected); result.put("message", command + " completed; " + affected + " row(s) affected.");
         } else {
             jdbc.execute(sql);
-            result.put("message", command + " statement executed. Oracle DDL may commit implicitly.");
+            result.put("message", command + " statement executed. Statement executed against the connected PostgreSQL database.");
         }
         return result;
     }
