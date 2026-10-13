@@ -33,7 +33,7 @@ public class WalletService {
 
     public Map<String, Object> summary(long userId) {
         List<Map<String, Object>> rows = jdbc.query("""
-                SELECT u.USER_ID, u.FULL_NAME, u.EMAIL, w.WALLET_ID, w.CURRENCY_CODE, w.BALANCE,
+                SELECT u.USER_ID, u.FULL_NAME, u.EMAIL, u.ROLE, w.WALLET_ID, w.CURRENCY_CODE, w.BALANCE,
                        NVL((SELECT SUM(t.AMOUNT) FROM TRANSACTIONS t WHERE t.RECEIVER_WALLET_ID = w.WALLET_ID AND t.STATUS = 'COMPLETED'), 0) AS TOTAL_RECEIVED,
                        NVL((SELECT SUM(t.AMOUNT) FROM TRANSACTIONS t WHERE t.SENDER_WALLET_ID = w.WALLET_ID AND t.STATUS = 'COMPLETED'), 0) AS TOTAL_SENT
                 FROM USERS u JOIN WALLETS w ON w.USER_ID = u.USER_ID
@@ -43,6 +43,7 @@ public class WalletService {
             item.put("userId", rs.getLong("USER_ID"));
             item.put("fullName", rs.getString("FULL_NAME"));
             item.put("email", rs.getString("EMAIL"));
+            item.put("role", rs.getString("ROLE"));
             item.put("walletId", rs.getLong("WALLET_ID"));
             item.put("currencyCode", rs.getString("CURRENCY_CODE").trim());
             item.put("balance", money(rs.getBigDecimal("BALANCE")));

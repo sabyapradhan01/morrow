@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#242820">
+  <title>Morrow Admin · Control Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/admin.css}">
+  <script th:src="@{/js/admin.js}" defer></script>
+</head>
+<body>
+  <main id="admin-login-view" class="admin-login-view">
+    <section class="admin-login-story">
+      <a class="admin-brand" href="/"><span class="brand-mark">m</span><span><b>morrow</b><small>ADMIN CONTROL ROOM</small></span></a>
+      <div class="story-content"><span class="eyebrow">PRIVILEGED ACCESS · PAT 4</span><h1>Control the<br><em>whole system.</em></h1><p>Manage accounts, review money movement, maintain ledger records and run SQL against your Oracle XE schema.</p>
+        <div class="story-points"><span>01 <b>ACCOUNT MANAGEMENT</b></span><span>02 <b>WALLET OVERSIGHT</b></span><span>03 <b>SQL WORKBENCH</b></span></div>
+      </div>
+      <div class="story-foot">LOCAL ACADEMIC DEMONSTRATION · SIMULATED FUNDS ONLY</div>
+    </section>
+    <section class="admin-login-panel">
+      <form id="admin-login-form" class="admin-login-form" novalidate>
+        <span class="eyebrow">ADMINISTRATOR SIGN IN</span><h2>Welcome back.</h2><p>Sign in with an account assigned the <code>ADMIN</code> role.</p>
+        <label for="admin-email">EMAIL ADDRESS</label><input id="admin-email" type="email" autocomplete="username" placeholder="admin@example.com" required>
+        <label for="admin-password">PASSWORD</label><input id="admin-password" type="password" autocomplete="current-password" placeholder="Enter administrator password" required>
+        <button class="btn btn-primary full" id="admin-login-submit" type="submit">Enter control room <span>↗</span></button>
+        <p id="admin-login-error" class="error-message" role="alert" hidden></p>
+        <div class="login-bottom"><a href="/">← Back to user wallet</a><span>JAVA · JDBC · ORACLE</span></div>
+      </form>
+    </section>
+  </main>
+
+  <main id="admin-dashboard" class="admin-dashboard" hidden>
+    <aside class="admin-sidebar">
+      <a class="admin-brand" href="/admin"><span class="brand-mark">m</span><span><b>morrow</b><small>ADMIN CONTROL ROOM</small></span></a>
+      <div class="sidebar-kicker">WORKSPACE</div>
+      <nav id="admin-nav">
+        <button type="button" class="nav-link active" data-admin-page="overview"><span>◫</span> Overview</button>
+        <button type="button" class="nav-link" data-admin-page="users"><span>♙</span> Users</button>
+        <button type="button" class="nav-link" data-admin-page="wallets"><span>▣</span> Wallets</button>
+        <button type="button" class="nav-link" data-admin-page="transactions"><span>↔</span> Transactions</button>
+        <button type="button" class="nav-link" data-admin-page="ledger"><span>≋</span> Ledger</button>
+        <button type="button" class="nav-link" data-admin-page="sql"><span>⌘</span> SQL workbench</button>
+      </nav>
+      <div class="sidebar-bottom"><div class="session-tag"><i></i> ADMIN SESSION</div><div class="sidebar-user"><span class="admin-avatar">A</span><span><b id="admin-name">Administrator</b><small id="admin-email-label">Connected</small></span></div><button id="admin-logout" class="logout-btn" type="button">↗ Sign out</button></div>
+    </aside>
+
+    <section class="admin-main">
+      <header class="admin-topbar"><div><span class="eyebrow">MORROW / CONTROL ROOM</span><h1 id="admin-page-title">System overview</h1></div><div class="top-actions"><span class="db-status"><i></i> ORACLE XE · JDBC</span><button id="admin-refresh" class="btn btn-light" type="button">↻ Refresh</button></div></header>
+      <div class="admin-warning"><b>ADMIN ACCESS</b><span>You can edit records and execute SQL on the connected Oracle schema. This is a local academic demo; destructive SQL can damage the app data. Top-ups are simulated.</span></div>
+
+      <section id="admin-overview-panel" class="admin-page-panel">
+        <div class="admin-intro"><div><span class="eyebrow">LIVE DATABASE SNAPSHOT</span><h2>Your system at a glance.</h2><p>Counts are read directly from the same Oracle database used by the wallet website.</p></div><div class="snapshot-time" id="snapshot-time">Awaiting refresh</div></div>
+        <div class="metric-grid">
+          <article class="metric-card"><span>REGISTERED USERS</span><strong id="metric-users">—</strong><small id="metric-active-users">— active</small></article>
+          <article class="metric-card"><span>WALLETS</span><strong id="metric-wallets">—</strong><small>Oracle records</small></article>
+          <article class="metric-card"><span>TRANSACTIONS</span><strong id="metric-transactions">—</strong><small>Top-ups and transfers</small></article>
+          <article class="metric-card"><span>LEDGER ENTRIES</span><strong id="metric-ledger">—</strong><small>Credits and debits</small></article>
+          <article class="metric-card metric-wide"><span>COMBINED WALLET BALANCES</span><strong id="metric-total-balance">₹—</strong><small>Aggregate of balances in WALLETS (simulated funds)</small></article>
+        </div>
+        <div class="two-col-note"><article class="info-panel"><span class="eyebrow">ADMIN CAPABILITIES</span><h3>One place to maintain Morrow.</h3><p>Create and manage user accounts, perform wallet adjustments with ledger records, edit or remove transaction records, manage ledger entries, and execute one SQL statement at a time.</p></article><article class="info-panel danger-panel"><span class="eyebrow">DATA INTEGRITY</span><h3>Use destructive operations carefully.</h3><p>Deleting a transaction also removes its ledger entries and recomputes affected wallet balances from the remaining ledger. Manual SQL can bypass business rules; use only disposable demo records for destructive tests.</p></article></div>
+      </section>
+
+      <section id="admin-data-panel" class="admin-page-panel" hidden>
+        <div class="table-toolbar"><div><span class="eyebrow" id="data-eyebrow">DATABASE RECORDS</span><h2 id="data-heading">Users</h2><p id="data-description">Account records and roles.</p></div><button id="show-create-user" class="btn btn-primary" type="button" hidden>＋ Add user</button></div>
+        <form id="create-user-form" class="create-user-form" hidden>
+          <div class="form-title"><div><b>Create user account</b><small>Creates a BCrypt password hash and an INR wallet.</small></div><button id="hide-create-user" type="button" class="icon-btn" aria-label="Close form">×</button></div>
+          <div class="form-grid"><label>Full name<input name="fullName" required minlength="2" maxlength="100" placeholder="Full name"></label><label>Email<input name="email" type="email" required maxlength="255" placeholder="person@example.com"></label><label>Temporary password<input name="password" type="password" required minlength="8" maxlength="72" placeholder="At least 8 characters"></label><label>Role<select name="role"><option value="USER">USER</option><option value="ADMIN">ADMIN</option></select></label></div>
+          <button class="btn btn-primary" type="submit">Create account + wallet</button><span class="inline-help">Only trusted people should be assigned ADMIN.</span>
+        </form>
+        <div class="table-panel"><div class="table-panel-top"><span id="table-record-count">Loading records…</span><input id="table-search" type="search" placeholder="Filter visible records…" aria-label="Filter records"></div><div class="table-wrap"><table><thead id="admin-table-head"></thead><tbody id="admin-table-body"><tr><td class="empty-cell">Loading Oracle records…</td></tr></tbody></table></div></div>
+      </section>
+
+      <section id="admin-sql-panel" class="admin-page-panel" hidden>
+        <div class="sql-heading"><div><span class="eyebrow">ORACLE DATABASE · JDBC</span><h2>SQL workbench.</h2><p>Run one SQL statement using the MORROW_APP schema connection.</p></div><span class="sql-chip">XE / 11g</span></div>
+        <div class="sql-warning"><b>Read before running:</b> DDL such as DROP/TRUNCATE may commit implicitly and cannot be rolled back. Never run destructive commands against important project data. This is intentionally single-statement execution; use SQL*Plus for transaction-control demonstrations.</div>
+        <div class="sql-editor-card"><div class="editor-bar"><span><i></i><i></i><i></i> SQL COMMAND</span><span>One statement · Max 12,000 characters</span></div><textarea id="sql-input" spellcheck="false" aria-label="SQL statement" placeholder="SELECT USER_ID, FULL_NAME, EMAIL, ROLE FROM USERS ORDER BY USER_ID"></textarea><div class="sql-actions"><div class="sql-presets"><button type="button" data-sql="SELECT USER_ID, FULL_NAME, EMAIL, ROLE, STATUS FROM USERS ORDER BY USER_ID">Users</button><button type="button" data-sql="SELECT U.FULL_NAME, U.EMAIL, W.WALLET_ID, W.BALANCE FROM USERS U JOIN WALLETS W ON W.USER_ID=U.USER_ID ORDER BY U.USER_ID">Wallets</button><button type="button" data-sql="SELECT TRANSACTION_ID, TRANSACTION_TYPE, AMOUNT, STATUS, DESCRIPTION FROM TRANSACTIONS ORDER BY TRANSACTION_ID DESC">Transactions</button><button type="button" data-sql="SELECT LEDGER_ID, TRANSACTION_ID, WALLET_ID, ENTRY_TYPE, AMOUNT, BALANCE_AFTER FROM LEDGER ORDER BY LEDGER_ID DESC">Ledger</button></div><button id="run-sql" type="button" class="btn btn-primary">▶ Run SQL</button></div></div>
+        <div class="sql-output-panel"><div class="output-head"><b>Execution result</b><span id="sql-result-status">Not run yet</span></div><div id="sql-result" class="sql-result"><div class="empty-cell">Choose a preset or type a single SQL statement, then select Run SQL.</div></div></div>
+      </section>
+      <footer class="admin-footer">MORROW · PAT 4 PROJECT <span>JAVA 21 / SPRING BOOT / JDBC / ORACLE XE 11G</span></footer>
+    </section>
+  </main>
+
+  <dialog id="record-dialog" class="record-dialog"><form id="record-dialog-form" method="dialog"><div class="dialog-head"><div><span class="eyebrow">RECORD EDITOR</span><h2 id="dialog-title">Edit record</h2></div><button id="dialog-close" class="icon-btn" type="button" aria-label="Close">×</button></div><div id="dialog-fields" class="dialog-fields"></div><div class="dialog-actions"><button id="dialog-cancel" class="btn btn-light" type="button">Cancel</button><button id="dialog-save" class="btn btn-primary" type="submit">Save changes</button></div></form></dialog>
+  <div id="admin-toast" class="admin-toast" role="status" hidden></div>
+</body>
+</html>

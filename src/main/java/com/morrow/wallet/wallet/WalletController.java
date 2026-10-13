@@ -50,6 +50,10 @@ public class WalletController {
         SessionUser sessionUser = SessionUser.require(session);
         SessionUser activeUser = authService.findActiveUser(sessionUser.userId());
         activeUser.store(session);
+        if (!"USER".equals(activeUser.role())) {
+            throw new com.morrow.wallet.api.ApiException(org.springframework.http.HttpStatus.FORBIDDEN,
+                    "Administrator accounts must use the admin control room.");
+        }
         return activeUser;
     }
 }

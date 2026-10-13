@@ -1,6 +1,6 @@
 # Morrow — Digital Wallet Management System (Java + JDBC + Oracle)
 
-Morrow is a PAT 4 academic project using **Java 21, Spring Boot 3.5, Thymeleaf, Spring JDBC, Oracle Database, and the Oracle JDBC Thin driver (`ojdbc11`)**. It is not a real financial service and does not connect to a bank. The user account, balances, simulated top-ups, transfers, transaction history, and wallet ledger are persisted in Oracle.
+Morrow is a PAT 4 academic project using **Java 21, Spring Boot 3.5, Thymeleaf, Spring JDBC, Oracle Database, and the Oracle JDBC Thin driver (`ojdbc8` 12.2 legacy driver line)**. It is not a real financial service and does not connect to a bank. The user account, balances, simulated top-ups, transfers, transaction history, and wallet ledger are persisted in Oracle.
 
 ## What's implemented in this release
 
@@ -13,6 +13,8 @@ Morrow is a PAT 4 academic project using **Java 21, Spring Boot 3.5, Thymeleaf, 
 - Database-backed transaction history, balance and totals, filtering/search, CSV export, sign-out, and balance visibility.
 - Server-side amount/email validation, generic invalid-credential messages, safe API errors, and common browser security headers.
 - SQL DDL, sample SQL DML, and useful Oracle queries for the PAT submission.
+- Separate user and administrator sign-in. Admin permissions are checked on the server against the role saved in Oracle.
+- Admin control room at `/admin`: user create/edit/close, wallet balance adjustments recorded as transactions and ledger entries, transaction description edits/deletion with linked-ledger cleanup and balance rebuild, ledger entry edits/deletion, and an admin-only SQL workbench.
 
 **Important project boundary:** top-ups are simulated credits for demonstrating DML; they do not verify a bank payment. The virtual card is a visual mock-up only. Do not use this project to store or move real money or expose it publicly as a production banking service.
 
@@ -74,6 +76,20 @@ ORDER BY TABLE_NAME;
 
 Register new accounts through Morrow's **Create an account** form. Registration stores a BCrypt password hash and creates a zero-balance INR wallet in a database transaction. Do not insert a placeholder password hash manually.
 
+### Enable administrator access on an existing database
+
+First stop Spring Boot and make a backup of your schema/data. Connect to the **existing** schema as `MORROW_APP`, then run the one-time role migration:
+
+```sql
+@database/06_admin_role_migration.sql
+```
+
+The script adds `USERS.ROLE` if missing, defaults existing users to `USER`, and prompts you for the email of one existing active account to promote to `ADMIN`. The promoted account keeps its existing password and wallet; it signs in at `/admin`. Other accounts remain `USER` and sign in at `/`. Check the output and confirm exactly the intended account is `ADMIN`.
+
+For a brand-new database, `01_schema.sql` already creates the `ROLE` column and role constraint; run the migration only if you need to promote an account. The script is safe to rerun for the column/constraint checks, but it promotes the email you enter each time.
+
+**Admin control room:** open `http://localhost:8081/admin`. The admin UI calls `/api/admin/*`; each endpoint verifies the active `ADMIN` role from Oracle. The SQL workbench supports one `SELECT`/`WITH`, DML (`INSERT`, `UPDATE`, `DELETE`, `MERGE`), DDL (`CREATE`, `ALTER`, `DROP`, `TRUNCATE`, `RENAME`, `COMMENT`), and DCL (`GRANT`, `REVOKE`) statement at a time. Results are capped at 200 rows, and password hashes are blocked from the workbench. PL/SQL blocks and TCL should be run in SQL*Plus, not the web workbench. The workbench is powerful and intentionally for a local academic demo only—never expose this application publicly. It runs as `MORROW_APP`, so it cannot perform operations beyond that Oracle account's privileges (for example, creating Oracle database users requires DBA privileges and is not exposed through the web app).
+
 ### Optional SQL DML demonstration
 
 After an account has been registered in the UI, demonstrate a simulated wallet credit directly through SQL*Plus with:
@@ -119,15 +135,22 @@ The application may start while Oracle is offline; database-backed operations wi
 | Method | Endpoint | Purpose |
 |---|---|---|
 | `POST` | `/api/auth/register` | Create account, BCrypt password hash, INR wallet and signed-in session |
-| `POST` | `/api/auth/login` | Verify stored hash and start a server session |
+| `POST` | `/api/auth/login` | Verify a USER credential and start a server session |
+| `POST` | `/api/auth/admin-login` | Verify an ADMIN credential and start an admin session |
 | `GET` | `/api/auth/me` | Return current signed-in user's wallet summary |
 | `POST` | `/api/auth/logout` | Invalidate server session |
 | `GET` | `/api/wallet/summary` | Return user's wallet balance and credit/debit totals |
 | `GET` | `/api/wallet/transactions` | Return recent transaction history for that wallet |
 | `POST` | `/api/wallet/top-up` | Record a simulated wallet credit, transaction and ledger row |
 | `POST` | `/api/wallet/transfers` | Atomically transfer simulated funds to another active Morrow user |
+| `GET` | `/api/admin/overview` | Admin-only live database counts and total balance |
+| `GET/POST/PUT/DELETE` | `/api/admin/users` | Admin-only account management (delete means soft-close) |
+| `GET/PUT` | `/api/admin/wallets` | Admin-only wallet inspection and audited balance adjustments |
+| `GET/PUT/DELETE` | `/api/admin/transactions` | Admin-only transaction description edits and deletion with ledger cleanup |
+| `GET/PUT/DELETE` | `/api/admin/ledger` | Admin-only ledger management |
+| `POST` | `/api/admin/sql` | Admin-only single-statement SQL workbench
 
-The wallet endpoints require the session created by registration/sign-in. The UI uses same-origin JSON requests and no cross-origin API access is enabled.
+The wallet endpoints require a USER session; admin endpoints independently re-check the active account role from Oracle. The UI uses same-origin JSON requests. Admin SQL workbench is dangerous by design; only use it locally with disposable academic data.
 
 ## Build and test
 

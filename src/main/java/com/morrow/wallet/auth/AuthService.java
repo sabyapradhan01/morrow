@@ -32,7 +32,7 @@ public class AuthService {
         }
         String passwordHash = passwordEncoder.encode(request.password());
         try {
-            jdbc.update("INSERT INTO USERS (FULL_NAME, EMAIL, PASSWORD_HASH, STATUS) VALUES (?, ?, ?, 'ACTIVE')",
+            jdbc.update("INSERT INTO USERS (FULL_NAME, EMAIL, PASSWORD_HASH, STATUS, ROLE) VALUES (?, ?, ?, 'ACTIVE', 'USER')",
                     name, email, passwordHash);
         } catch (DuplicateKeyException exception) {
             throw new ApiException(HttpStatus.CONFLICT, "An account with that email already exists. Sign in instead.");
@@ -40,32 +40,42 @@ public class AuthService {
 
         long userId = jdbc.queryForObject("SELECT USER_ID FROM USERS WHERE EMAIL = ?", Long.class, email);
         jdbc.update("INSERT INTO WALLETS (USER_ID, CURRENCY_CODE, BALANCE) VALUES (?, 'INR', 0.00)", userId);
-        return new SessionUser(userId, name, email);
+        return new SessionUser(userId, name, email, "USER");
     }
 
     public SessionUser login(AuthRequests.Login request) {
+        return login(request, "USER");
+    }
+
+    public SessionUser adminLogin(AuthRequests.Login request) {
+        return login(request, "ADMIN");
+    }
+
+    private SessionUser login(AuthRequests.Login request, String requiredRole) {
         String email = normalizeEmail(request.email());
         if (request.password().getBytes(StandardCharsets.UTF_8).length > 72) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Email or password is incorrect.");
         }
-        var matches = jdbc.query("SELECT USER_ID, FULL_NAME, EMAIL, PASSWORD_HASH, STATUS FROM USERS WHERE EMAIL = ?",
+        var matches = jdbc.query("SELECT USER_ID, FULL_NAME, EMAIL, PASSWORD_HASH, STATUS, ROLE FROM USERS WHERE LOWER(EMAIL) = ?",
                 (rs, rowNum) -> new AccountRow(
                         rs.getLong("USER_ID"), rs.getString("FULL_NAME"), rs.getString("EMAIL"),
-                        rs.getString("PASSWORD_HASH"), rs.getString("STATUS")), email);
+                        rs.getString("PASSWORD_HASH"), rs.getString("STATUS"), rs.getString("ROLE")), email);
 
         if (matches.isEmpty()) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Email or password is incorrect.");
         }
         AccountRow account = matches.get(0);
-        if (!"ACTIVE".equals(account.status()) || !passwordEncoder.matches(request.password(), account.passwordHash())) {
-            throw new ApiException(HttpStatus.UNAUTHORIZED, "Email or password is incorrect.");
+        if (!"ACTIVE".equals(account.status())
+                || !requiredRole.equals(account.role())
+                || !passwordEncoder.matches(request.password(), account.passwordHash())) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "Email or password is incorrect for this login type.");
         }
-        return new SessionUser(account.userId(), account.fullName(), account.email());
+        return new SessionUser(account.userId(), account.fullName(), account.email(), account.role());
     }
 
     public SessionUser findActiveUser(long userId) {
-        var matches = jdbc.query("SELECT USER_ID, FULL_NAME, EMAIL FROM USERS WHERE USER_ID = ? AND STATUS = 'ACTIVE'",
-                (rs, rowNum) -> new SessionUser(rs.getLong("USER_ID"), rs.getString("FULL_NAME"), rs.getString("EMAIL")), userId);
+        var matches = jdbc.query("SELECT USER_ID, FULL_NAME, EMAIL, ROLE FROM USERS WHERE USER_ID = ? AND STATUS = 'ACTIVE'",
+                (rs, rowNum) -> new SessionUser(rs.getLong("USER_ID"), rs.getString("FULL_NAME"), rs.getString("EMAIL"), rs.getString("ROLE")), userId);
         if (matches.isEmpty()) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Your account is unavailable. Please sign in again.");
         }
@@ -76,5 +86,5 @@ public class AuthService {
         return email == null ? "" : email.trim().toLowerCase(Locale.ROOT);
     }
 
-    private record AccountRow(long userId, String fullName, String email, String passwordHash, String status) { }
+    private record AccountRow(long userId, String fullName, String email, String passwordHash, String status, String role) { }
 }

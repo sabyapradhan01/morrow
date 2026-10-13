@@ -39,6 +39,13 @@ public class AuthController {
         return walletService.summary(user.userId());
     }
 
+    @PostMapping("/admin-login")
+    public Map<String, Object> adminLogin(@Valid @RequestBody AuthRequests.Login body, HttpServletRequest request) {
+        SessionUser user = authService.adminLogin(body);
+        establishSession(request, user);
+        return walletService.summary(user.userId());
+    }
+
     @GetMapping("/me")
     public Map<String, Object> currentUser(HttpServletRequest request) {
         HttpSession session = request.getSession(false);

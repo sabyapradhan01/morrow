@@ -942,6 +942,16 @@
 
       const summary = await api('/api/auth/me');
 
+      if (summary.role === 'ADMIN') {
+        await api('/api/auth/logout', { method: 'POST' });
+        loginView.hidden = false;
+        walletApp.hidden = true;
+        showAuthMode('login');
+        $('#login-error span').textContent = 'This is an administrator account. Please sign in at /admin.';
+        loginError.hidden = false;
+        return;
+      }
+
       updateIdentity(summary);
 
       await loadTransactions();

@@ -6,3 +6,8 @@ target/
 application-local.properties
 .env
 .DS_Store
+
+.env.*
+!.env.example
+*.sqlite
+*.db
