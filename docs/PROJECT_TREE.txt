@@ -1,0 +1,26 @@
+Morrow-Wallet-JDBC-Phase1/
+├── pom.xml
+├── README.md
+├── .gitignore
+├── database/
+│   ├── 00_create_app_user.sql
+│   ├── 01_schema.sql
+│   ├── 02_sample_dml.sql
+│   ├── 03_useful_queries.sql
+│   └── 04_reset_demo_data.sql
+├── docs/
+│   ├── ARCHITECTURE.md
+│   └── PROJECT_TREE.txt
+└── src/
+    ├── main/
+    │   ├── java/com/morrow/wallet/
+    │   │   ├── MorrowWalletApplication.java
+    │   │   └── web/
+    │   │       ├── HomeController.java
+    │   │       └── HealthController.java
+    │   └── resources/
+    │       ├── application.properties
+    │       ├── templates/index.html
+    │       └── static/css/app.css
+    │       └── static/js/app.js
+    └── test/java/com/morrow/wallet/MorrowWalletApplicationTests.java

@@ -1,0 +1,1159 @@
+<!doctype html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+  <meta charset="utf-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="theme-color" content="#0d1b15">
+
+  <meta name="description" content="Morrow digital wallet management system — PAT 4 academic demo.">
+
+  <title>Morrow — Premium Digital Wallet</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+
+</head>
+
+<body>
+
+  <!-- Enhanced SVG Library -->
+
+  <svg class="icon-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></symbol>
+
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+
+    <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12h4l3-7 4 14 3-7h4"/></symbol>
+
+    <symbol id="i-card" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></symbol>
+
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></symbol>
+
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></symbol>
+
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+
+    <symbol id="i-in" viewBox="0 0 24 24"><path d="M7 7 17 17M17 8v9H8"/></symbol>
+
+    <symbol id="i-out" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+
+    <symbol id="i-next" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+
+    <symbol id="i-dots" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></symbol>
+
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 19 6v5c0 5-3 8-7 10-4-2-7-5-7-10V6l7-3Z"/><path d="m9 12 2 2 4-4"/></symbol>
+
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 20h16"/></symbol>
+
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></symbol>
+
+    <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61M2 2l20 20"/></symbol>
+
+    <symbol id="i-wallet" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="15" rx="3"/><path d="M3 9h18m-5 5h2"/></symbol>
+
+    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.2.9-1.2 2.1-1.4-.5a7.7 7.7 0 0 1-1.6.9l-.2 1.5h-2.5l-.3-1.5a7.7 7.7 0 0 1-1.6-.9l-1.4.5-1.2-2.1 1.2-.9a7 7 0 0 1 0-1.8l-1.2-.9 1.2-2.1 1.4.5a7.7 7.7 0 0 1 1.6-.9l.3-1.5h2.5l.2 1.5a7.7 7.7 0 0 1 1.6.9l1.4-.5 1.2 2.1-1.2.9a7 7 0 0 1 0 1.7Z" transform="translate(-1 -1) scale(1.08)"/></symbol>
+
+    <symbol id="i-log-out" viewBox="0 0 24 24"><path d="m10 17 5-5-5-5m5 5H3m9-9h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/></symbol>
+
+    <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></symbol>
+
+  </svg>
+
+  <main id="login-view" class="login-view">
+
+    <section class="login-story">
+
+      <div class="story-glow"></div>
+
+      <a class="brand brand-light" href="#" aria-label="Morrow home">
+
+        <span class="brand-mark">m</span>
+
+        <span class="brand-copy"><strong>morrow</strong><small>MONEY, IN BETTER RHYTHM</small></span>
+
+      </a>
+
+      <div class="story-body">
+
+        <span class="eyebrow-pill"><i></i> A CALMER WAY TO PAY</span>
+
+        <h1>Money should<br><em>feel simpler.</em></h1>
+
+        <p>A premium wallet experience built around absolute clarity, seamless control, and the confidence to move at your pace.</p>
+
+        <div class="story-card-wrapper">
+
+          <div class="story-card">
+
+            <div class="card-glass-layer"></div>
+
+            <span class="micro-label">YOUR MONEY, IN ONE PLACE</span>
+
+            <strong class="story-balance">A fresh start.</strong>
+
+            <span class="growth-pill">Your money, your pace</span>
+
+            <div class="story-chart" aria-hidden="true">
+
+              <i style="--bar:22%"></i><i style="--bar:38%"></i><i style="--bar:31%"></i><i style="--bar:52%"></i>
+
+              <i style="--bar:42%"></i><i style="--bar:68%"></i><i style="--bar:53%"></i><i style="--bar:82%"></i>
+
+              <i style="--bar:61%"></i><i class="chart-active" style="--bar:94%"></i>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="story-trust">
+
+          <span class="icon-circle"><svg class="icon"><use href="#i-shield"/></svg></span>
+
+          <span><strong>Engineered for peace of mind</strong><small>This academic PAT 4 build uses simulated funds, never real money.</small></span>
+
+        </div>
+
+      </div>
+
+      <div class="story-footer"><span>© MORROW · PAT 4 PROJECT</span><span>01 / 04</span></div>
+
+    </section>
+
+    <section class="login-panel">
+
+      <div class="login-help">DIGITAL WALLET MANAGEMENT</div>
+
+      <div class="login-form-wrap">
+
+        <div class="form-header">
+
+          <span class="form-kicker" id="auth-kicker">WELCOME TO MORROW</span>
+
+          <h2 id="auth-title">Good to see you.</h2>
+
+          <p class="form-subtitle" id="auth-subtitle">Sign in to access your Oracle-backed wallet.</p>
+
+        </div>
+
+        <form id="login-form" novalidate>
+
+          <div class="form-group">
+
+            <label class="field-label" for="login-email">EMAIL ADDRESS</label>
+
+            <div class="input-wrapper">
+
+              <input id="login-email" name="email" type="email" autocomplete="username" placeholder="you@example.com" required>
+
+            </div>
+
+          </div>
+
+          <div class="form-group">
+
+            <label class="field-label" for="login-password">PASSWORD</label>
+
+            <div class="password-field input-wrapper">
+
+              <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+
+              <button id="toggle-password" type="button" aria-label="Show password">
+
+                <svg class="icon"><use href="#i-eye"/></svg>
+
+              </button>
+
+            </div>
+
+          </div>
+
+          <div class="login-options">
+
+            <span class="secure-badge"><svg class="icon"><use href="#i-shield"/></svg> Hash secured</span>
+
+            <span>SERVER SESSION</span>
+
+          </div>
+
+          <button class="primary-button full-button" type="submit">Sign in <svg class="icon"><use href="#i-next"/></svg></button>
+
+          <button class="text-link auth-switch" id="show-register" type="button">New to Morrow? <span>Create an account</span></button>
+
+          <div id="login-error" class="inline-error" role="alert" hidden>
+
+            <svg class="icon"><use href="#i-close"/></svg> <span></span>
+
+          </div>
+
+        </form>
+
+        <form id="register-form" novalidate hidden>
+
+          <div class="form-group">
+
+            <label class="field-label" for="register-name">FULL NAME</label>
+
+            <div class="input-wrapper">
+
+              <input id="register-name" name="fullName" type="text" autocomplete="name" minlength="2" maxlength="100" placeholder="Your full name" required>
+
+            </div>
+
+          </div>
+
+          <div class="form-group">
+
+            <label class="field-label" for="register-email">EMAIL ADDRESS</label>
+
+            <div class="input-wrapper">
+
+              <input id="register-email" name="email" type="email" autocomplete="email" maxlength="255" placeholder="you@example.com" required>
+
+            </div>
+
+          </div>
+
+          <div class="form-group">
+
+            <label class="field-label" for="register-password">CREATE PASSWORD</label>
+
+            <div class="input-wrapper">
+
+              <input id="register-password" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="72" placeholder="At least 8 characters" required>
+
+            </div>
+
+          </div>
+
+          <div class="form-group">
+
+            <label class="field-label" for="register-confirm-password">CONFIRM PASSWORD</label>
+
+            <div class="input-wrapper">
+
+              <input id="register-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="72" placeholder="Enter your password again" required>
+
+            </div>
+
+          </div>
+
+          <button class="primary-button full-button" type="submit">Create account <svg class="icon"><use href="#i-next"/></svg></button>
+
+          <button class="text-link auth-switch" id="show-login" type="button">Already registered? <span>Sign in</span></button>
+
+          <div id="register-error" class="inline-error" role="alert" hidden>
+
+            <svg class="icon"><use href="#i-close"/></svg> <span></span>
+
+          </div>
+
+        </form>
+
+        <div class="demo-explainer">
+
+          <div class="explainer-icon"><svg class="icon"><use href="#i-shield"/></svg></div>
+
+          <span>
+
+            <strong>Protected by a server session</strong>
+
+            <small>Your password is stored as a BCrypt hash. Wallet balances and simulated transaction records are stored reliably in Oracle through JDBC.</small>
+
+          </span>
+
+        </div>
+
+        <div class="login-bottom"><span>NO REAL MONEY MOVES IN THIS DEMO</span><span>JAVA · JDBC · ORACLE</span></div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <div id="wallet-app" class="wallet-app" hidden>
+
+    <aside class="sidebar">
+
+      <a class="brand brand-light" href="#overview" aria-label="Morrow overview">
+
+        <span class="brand-mark">m</span>
+
+        <span class="brand-copy"><strong>morrow</strong><small>MONEY, IN BETTER RHYTHM</small></span>
+
+      </a>
+
+      <div class="sidebar-scroll">
+
+        <div class="nav-label">WORKSPACE</div>
+
+        <nav class="main-nav" aria-label="Main navigation">
+
+          <button class="nav-item active" type="button" data-page="overview"><svg class="icon"><use href="#i-grid"/></svg><span>Overview</span></button>
+
+          <button class="nav-item" type="button" data-page="transfer"><svg class="icon"><use href="#i-send"/></svg><span>Transfer</span></button>
+
+          <button class="nav-item" type="button" data-page="transactions"><svg class="icon"><use href="#i-activity"/></svg><span>Transactions</span></button>
+
+          <button class="nav-item" type="button" data-page="cards"><svg class="icon"><use href="#i-card"/></svg><span>Your cards</span></button>
+
+        </nav>
+
+        <div class="nav-divider"></div>
+
+        <div class="nav-label secondary-label">YOUR SPACE</div>
+
+        <button class="nav-item" type="button" data-page="settings"><svg class="icon"><use href="#i-settings"/></svg><span>Settings</span></button>
+
+        <button class="nav-item" type="button" id="help-button"><span class="help-icon">?</span><span>Help &amp; support</span></button>
+
+      </div>
+
+      <div class="sidebar-bottom">
+
+        <button class="profile-card" id="logout-button" type="button" title="Sign out of your Morrow account">
+
+          <span class="avatar profile-avatar">MW</span>
+
+          <span class="profile-copy"><strong id="profile-name">Morrow User</strong><small>Personal Account</small></span>
+
+          <span class="logout-icon"><svg class="icon"><use href="#i-log-out"/></svg></span>
+
+        </button>
+
+        <div class="sidebar-foot">ACADEMIC WALLET DEMO</div>
+
+      </div>
+
+    </aside>
+
+    <section class="app-main">
+
+      <header class="topbar">
+
+        <div class="topbar-date">SUNDAY, 11 OCTOBER</div>
+
+        <div class="topbar-actions">
+
+          <label class="global-search">
+
+            <svg class="icon"><use href="#i-search"/></svg>
+
+            <input type="search" id="global-search" placeholder="Search anything" aria-label="Search transactions">
+
+            <kbd>⌘ K</kbd>
+
+          </label>
+
+          <button class="icon-button" type="button" id="notifications-button" aria-label="Notifications">
+
+            <svg class="icon"><use href="#i-bell"/></svg><i></i>
+
+          </button>
+
+          <button class="profile-trigger" type="button" data-go="settings">
+
+            <span class="mini-avatar" id="mini-avatar">SP</span>
+
+          </button>
+
+        </div>
+
+      </header>
+
+      <div class="demo-banner">
+
+        <span class="banner-dot"></span>
+
+        <span><strong>Academic simulation</strong> — account and wallet records are securely saved in Oracle; top-ups do not contact a bank.</span>
+
+        <button id="dismiss-banner" type="button" aria-label="Dismiss notice"><svg class="icon"><use href="#i-close"/></svg></button>
+
+      </div>
+
+      <main class="page-container">
+
+        <!-- Overview Page -->
+
+        <section class="page-view active" id="page-overview" data-view="overview">
+
+          <div class="page-head">
+
+            <div>
+
+              <div class="eyebrow">PERSONAL WALLET</div>
+
+              <h1>Good evening, <span id="greeting-name">there</span>.</h1>
+
+              <p>A clear, beautiful view of your money, all in one place.</p>
+
+            </div>
+
+            <span class="sync-pill"><i></i> ALL IN SYNC</span>
+
+          </div>
+
+          <div class="overview-grid">
+
+            <article class="balance-card premium-card">
+
+              <div class="card-glow"></div>
+
+              <div class="balance-top">
+
+                <span class="micro-label">TOTAL AVAILABLE BALANCE</span>
+
+                <button type="button" class="balance-eye" id="balance-toggle" aria-label="Hide balance"><svg class="icon"><use href="#i-eye"/></svg></button>
+
+              </div>
+
+              <div class="balance-value" id="balance-value">₹ 0.00</div>
+
+              <span class="growth-pill"><svg class="icon"><use href="#i-shield"/></svg> Oracle Secured</span>
+
+              <p>Across your Morrow wallet</p>
+
+              <div class="wallet-id">
+
+                <span>WALLET ID</span>
+
+                <strong id="wallet-reference">MORROW · INR</strong>
+
+                <small>SIMULATED FUNDS</small>
+
+              </div>
+
+              <!-- Ambient background orbs -->
+
+              <div class="balance-orbit orbit-a"></div>
+
+              <div class="balance-orbit orbit-b"></div>
+
+              <div class="balance-orbit orbit-c"></div>
+
+            </article>
+
+            <article class="spend-card">
+
+              <div class="card-topline">
+
+                <span class="eyebrow">TOTAL MONEY SENT</span>
+
+                <button class="plain-icon-button" id="spend-more" type="button" aria-label="Spending detail"><svg class="icon"><use href="#i-dots"/></svg></button>
+
+              </div>
+
+              <div class="spend-value" id="monthly-sent">₹ 0.00</div>
+
+              <p>Money out in recorded transfers</p>
+
+              <div class="spend-meta">
+
+                <span class="spend-trend">Oracle-backed activity</span>
+
+                <span class="micro-label">ALL TIME</span>
+
+              </div>
+
+              <div class="spend-chart" aria-label="Illustrative chart decoration">
+
+                <i style="--bar:18%"><b>M</b></i><i style="--bar:26%"><b>T</b></i><i style="--bar:21%"><b>W</b></i>
+
+                <i style="--bar:36%"><b>T</b></i><i style="--bar:28%"><b>F</b></i><i class="highlight" style="--bar:42%"><b>S</b></i>
+
+                <i style="--bar:31%"><b>S</b></i>
+
+              </div>
+
+            </article>
+
+          </div>
+
+          <section class="section-block">
+
+            <div class="section-heading">
+
+              <div>
+
+                <h2>Your shortcuts</h2>
+
+                <p>The things you do most, just one step away.</p>
+
+              </div>
+
+              <span class="micro-label">04 ACTIONS</span>
+
+            </div>
+
+            <div class="shortcuts-grid">
+
+              <button class="shortcut-card" type="button" data-action="add-money">
+
+                <span class="shortcut-icon mint"><svg class="icon"><use href="#i-plus"/></svg></span>
+
+                <span class="shortcut-copy"><strong>Add money</strong><small>Top up your wallet</small></span>
+
+                <svg class="icon shortcut-arrow"><use href="#i-out"/></svg>
+
+              </button>
+
+              <button class="shortcut-card" type="button" data-go="transfer">
+
+                <span class="shortcut-icon neutral"><svg class="icon"><use href="#i-send"/></svg></span>
+
+                <span class="shortcut-copy"><strong>Send money</strong><small>Move money securely</small></span>
+
+                <svg class="icon shortcut-arrow"><use href="#i-out"/></svg>
+
+              </button>
+
+              <button class="shortcut-card" type="button" data-action="request-money">
+
+                <span class="shortcut-icon amber"><svg class="icon"><use href="#i-in"/></svg></span>
+
+                <span class="shortcut-copy"><strong>Request money</strong><small>Ask someone to pay</small></span>
+
+                <svg class="icon shortcut-arrow"><use href="#i-out"/></svg>
+
+              </button>
+
+              <button class="shortcut-card" type="button" data-go="transactions">
+
+                <span class="shortcut-icon blue"><svg class="icon"><use href="#i-activity"/></svg></span>
+
+                <span class="shortcut-copy"><strong>All activity</strong><small>Track every movement</small></span>
+
+                <svg class="icon shortcut-arrow"><use href="#i-out"/></svg>
+
+              </button>
+
+            </div>
+
+          </section>
+
+          <section class="section-block recent-block">
+
+            <div class="section-heading">
+
+              <div>
+
+                <h2>Recent activity</h2>
+
+                <p>Your latest wallet movements, recorded flawlessly.</p>
+
+              </div>
+
+              <button class="text-link" type="button" data-go="transactions">VIEW ALL <svg class="icon"><use href="#i-out"/></svg></button>
+
+            </div>
+
+            <div class="transaction-card table-wrapper" id="recent-rows"></div>
+
+          </section>
+
+          <footer class="app-footer">
+
+            <span>MORROW · BUILT FOR CLARITY</span>
+
+            <span>ORACLE · JDBC · SIMULATED FUNDS</span>
+
+          </footer>
+
+        </section>
+
+        <!-- Transfer Page -->
+
+        <section class="page-view" id="page-transfer" data-view="transfer">
+
+          <div class="page-head">
+
+            <div>
+
+              <div class="eyebrow">MOVE MONEY</div>
+
+              <h1>Send money, thoughtfully.</h1>
+
+              <p>A considered way to move money to someone you trust.</p>
+
+            </div>
+
+            <span class="sync-pill"><svg class="icon"><use href="#i-shield"/></svg> SECURE DEMO</span>
+
+          </div>
+
+          <div class="transfer-layout">
+
+            <section class="form-card">
+
+              <div class="eyebrow">NEW TRANSFER</div>
+
+              <h2>Who are we paying?</h2>
+
+              <p class="form-intro">Send to another registered Morrow account using their email address.</p>
+
+              <div class="form-group">
+
+                <label class="field-label" for="recipient">RECIPIENT EMAIL</label>
+
+                <div class="input-wrapper">
+
+                  <input class="text-input" id="recipient" type="email" maxlength="255" placeholder="friend@example.com" autocomplete="off" required>
+
+                </div>
+
+              </div>
+
+              <div class="form-group">
+
+                <label class="field-label" for="transfer-amount">AMOUNT</label>
+
+                <div class="amount-input">
+
+                  <span>₹</span>
+
+                  <input id="transfer-amount" type="number" min="0.01" step="0.01" placeholder="0.00" inputmode="decimal">
+
+                </div>
+
+                <div class="amount-under">
+
+                  <span id="available-balance">AVAILABLE&nbsp; ₹ 1,24,850.60</span>
+
+                  <div class="quick-amounts">
+
+                    <button type="button" data-amount="500">₹500</button>
+
+                    <button type="button" data-amount="1000">₹1,000</button>
+
+                    <button type="button" data-amount="2000">₹2,000</button>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div class="form-group">
+
+                <label class="field-label" for="transfer-note">NOTE (OPTIONAL)</label>
+
+                <div class="input-wrapper">
+
+                  <input class="text-input" id="transfer-note" maxlength="80" placeholder="What's it for? e.g. dinner, shared cab…">
+
+                </div>
+
+              </div>
+
+              <div class="demo-note">
+
+                <div class="explainer-icon"><svg class="icon"><use href="#i-shield"/></svg></div>
+
+                <span>Transfers are simulated academic records. Sender and recipient wallet changes are saved atomically in Oracle; no real money moves.</span>
+
+              </div>
+
+              <button class="primary-button full-button" id="review-transfer" type="button">Review transfer <svg class="icon"><use href="#i-next"/></svg></button>
+
+              <div class="fineprint">You'll review the details before confirming.</div>
+
+            </section>
+
+            <aside class="transfer-aside">
+
+              <section class="transfer-preview premium-card">
+
+                <div class="card-glow"></div>
+
+                <div class="micro-label">TRANSFER PREVIEW</div>
+
+                <span class="preview-caption">YOU'RE SENDING</span>
+
+                <strong class="preview-amount" id="preview-amount">₹ 0.00</strong>
+
+                <hr>
+
+                <div class="preview-route">
+
+                  <span class="preview-caption">FROM</span>
+
+                  <b id="wallet-owner-label">Your Morrow INR wallet</b>
+
+                  <span class="preview-caption to-caption">TO</span>
+
+                  <b id="preview-recipient">Recipient email</b>
+
+                </div>
+
+                <span class="fee-pill">NO TRANSFER FEE</span>
+
+              </section>
+
+              <section class="people-card info-card">
+
+                <div class="info-icon"><svg class="icon"><use href="#i-activity"/></svg></div>
+
+                <h3>Sending, made clear</h3>
+
+                <p>Both accounts must be registered with Morrow.</p>
+
+                <div class="demo-note compact-note">
+
+                  <svg class="icon"><use href="#i-shield"/></svg>
+
+                  <span>Confirm the recipient email carefully. Transfers update both wallets and create a ledger record.</span>
+
+                </div>
+
+                <p class="fineprint">Create a second test account in another browser to try a transfer.</p>
+
+              </section>
+
+            </aside>
+
+          </div>
+
+          <footer class="app-footer">
+
+            <span>MORROW · BUILT FOR CLARITY</span>
+
+            <span>SIMULATED TRANSFERS ONLY</span>
+
+          </footer>
+
+        </section>
+
+        <!-- Transactions Page -->
+
+        <section class="page-view" id="page-transactions" data-view="transactions">
+
+          <div class="page-head">
+
+            <div>
+
+              <div class="eyebrow">WALLET ACTIVITY</div>
+
+              <h1>Every movement, accounted for.</h1>
+
+              <p>A thoughtful record of every rupee in and out.</p>
+
+            </div>
+
+            <button class="secondary-button outline-button" id="export-csv" type="button"><svg class="icon"><use href="#i-download"/></svg> Export statement</button>
+
+          </div>
+
+          <div class="stats-grid">
+
+            <article class="stat-card">
+
+              <span class="stat-icon mint"><svg class="icon"><use href="#i-in"/></svg></span>
+
+              <div class="stat-content">
+
+                <small class="micro-label">TOTAL RECEIVED</small>
+
+                <strong id="total-received">₹ 0.00</strong>
+
+                <p>All recorded credits</p>
+
+              </div>
+
+            </article>
+
+            <article class="stat-card">
+
+              <span class="stat-icon red"><svg class="icon"><use href="#i-out"/></svg></span>
+
+              <div class="stat-content">
+
+                <small class="micro-label">TOTAL SENT</small>
+
+                <strong id="total-sent">₹ 0.00</strong>
+
+                <p>All recorded debits</p>
+
+              </div>
+
+            </article>
+
+            <article class="stat-card">
+
+              <span class="stat-icon amber"><svg class="icon"><use href="#i-activity"/></svg></span>
+
+              <div class="stat-content">
+
+                <small class="micro-label">TRANSACTIONS</small>
+
+                <strong id="transaction-count">0</strong>
+
+                <p>Saved in Oracle</p>
+
+              </div>
+
+            </article>
+
+          </div>
+
+          <div class="filterbar">
+
+            <label class="global-search table-search">
+
+              <svg class="icon"><use href="#i-search"/></svg>
+
+              <input id="transaction-search" type="search" placeholder="Search transactions…" aria-label="Search transactions">
+
+            </label>
+
+            <div class="filter-buttons" role="group" aria-label="Filter transactions">
+
+              <button class="selected" type="button" data-filter="All">All</button>
+
+              <button type="button" data-filter="Money in">Money in</button>
+
+              <button type="button" data-filter="Money out">Money out</button>
+
+              <button type="button" data-filter="Pending">Pending</button>
+
+            </div>
+
+            <span class="date-filter">Last 30 days <svg class="icon"><use href="#i-down"/></svg></span>
+
+          </div>
+
+          <div class="transaction-card full-table table-wrapper" id="all-rows"></div>
+
+          <footer class="app-footer">
+
+            <span id="showing-count">SHOWING 0 TRANSACTIONS</span>
+
+            <span>ORACLE RECORDS · SIMULATED FUNDS</span>
+
+          </footer>
+
+        </section>
+
+        <!-- Cards Page -->
+
+        <section class="page-view" id="page-cards" data-view="cards">
+
+          <div class="page-head">
+
+            <div>
+
+              <div class="eyebrow">PAYMENT METHODS</div>
+
+              <h1>Your cards, in one place.</h1>
+
+              <p>Manage the payment methods linked to your demo wallet.</p>
+
+            </div>
+
+          </div>
+
+          <div class="cards-layout">
+
+            <article class="virtual-card">
+
+              <div class="glass-reflection"></div>
+
+              <div class="virtual-card-top">
+
+                <span class="brand-mark card-mark">m</span>
+
+                <svg class="icon"><use href="#i-wifi"/></svg>
+
+              </div>
+
+              <div class="chip">
+
+                <div class="chip-line"></div>
+
+                <div class="chip-line"></div>
+
+                <div class="chip-line"></div>
+
+              </div>
+
+              <div class="card-number">MORROW &nbsp; · &nbsp; WALLET</div>
+
+              <div class="virtual-card-bottom">
+
+                <span id="card-holder">MORROW ACCOUNT HOLDER</span>
+
+                <span>VISUAL DEMO ONLY</span>
+
+              </div>
+
+            </article>
+
+            <article class="linked-card info-card">
+
+              <span class="stat-icon mint"><svg class="icon"><use href="#i-wallet"/></svg></span>
+
+              <div class="card-details">
+
+                <h2>Morrow virtual card</h2>
+
+                <p>This beautifully crafted card illustration is for the academic interface only. It is not a bank-issued card and cannot make payments.</p>
+
+                <span class="status-pill inline-pill">Active · Demo only</span>
+
+              </div>
+
+              <button type="button" class="secondary-button outline-button" id="manage-card">Manage card</button>
+
+            </article>
+
+          </div>
+
+          <footer class="app-footer">
+
+            <span>MORROW · BUILT FOR CLARITY</span>
+
+            <span>NO REAL PAYMENT CARD IS CONNECTED</span>
+
+          </footer>
+
+        </section>
+
+        <!-- Settings Page -->
+
+        <section class="page-view" id="page-settings" data-view="settings">
+
+          <div class="page-head">
+
+            <div>
+
+              <div class="eyebrow">YOUR SPACE</div>
+
+              <h1>A wallet that feels like yours.</h1>
+
+              <p>Manage your Morrow account preferences.</p>
+
+            </div>
+
+          </div>
+
+          <section class="settings-card">
+
+            <div class="settings-profile">
+
+              <span class="avatar profile-avatar large-avatar">MW</span>
+
+              <div class="profile-info">
+
+                <strong id="settings-name">Morrow User</strong>
+
+                <small id="settings-email">Your registered Morrow account</small>
+
+              </div>
+
+              <em class="status-pill">Student project</em>
+
+            </div>
+
+            <div class="settings-list">
+
+              <div class="settings-row">
+
+                <div class="setting-text">
+
+                  <strong>Privacy &amp; visibility</strong>
+
+                  <small>Hide your balance from the dashboard overview.</small>
+
+                </div>
+
+                <button type="button" class="toggle-switch" id="settings-balance-toggle" aria-label="Toggle balance visibility">
+
+                  <span class="toggle-track"></span>
+
+                  <span class="toggle-thumb"></span>
+
+                </button>
+
+              </div>
+
+              <div class="settings-row">
+
+                <div class="setting-text">
+
+                  <strong>Wallet storage</strong>
+
+                  <small>Account profile, balance, transfers and ledger entries are stored in Oracle.</small>
+
+                </div>
+
+                <em class="status-pill plain-pill">JDBC connected</em>
+
+              </div>
+
+              <div class="settings-row">
+
+                <div class="setting-text">
+
+                  <strong>Session security</strong>
+
+                  <small>HTTP-only session cookie; inactivity timeout after 30 minutes.</small>
+
+                </div>
+
+                <em class="status-pill success-pill"><svg class="icon"><use href="#i-shield"/></svg> Protected</em>
+
+              </div>
+
+            </div>
+
+          </section>
+
+          <footer class="app-footer">
+
+            <span>MORROW · BUILT FOR CLARITY</span>
+
+            <span>ACCOUNT SETTINGS</span>
+
+          </footer>
+
+        </section>
+
+      </main>
+
+    </section>
+
+  </div>
+
+  <!-- Modals & Toasts -->
+
+  <div class="modal-backdrop" id="add-money-modal" hidden>
+
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="add-modal-title">
+
+      <button class="modal-close" type="button" data-close-modal="add-money-modal" aria-label="Close"><svg class="icon"><use href="#i-close"/></svg></button>
+
+      <span class="stat-icon mint modal-icon"><svg class="icon"><use href="#i-plus"/></svg></span>
+
+      <div class="modal-header">
+
+        <div class="eyebrow">WALLET TOP-UP</div>
+
+        <h2 id="add-modal-title">Add money to Morrow.</h2>
+
+        <p>This records a simulated credit in Oracle. It does not contact a bank or add real funds.</p>
+
+      </div>
+
+      <div class="form-group">
+
+        <label class="field-label" for="top-up-amount">AMOUNT (INR)</label>
+
+        <div class="amount-input">
+
+          <span>₹</span>
+
+          <input type="number" id="top-up-amount" min="1" max="1000000" step="0.01" value="1000" inputmode="decimal">
+
+        </div>
+
+        <div class="preset-row">
+
+          <button type="button" data-topup="500">₹500</button>
+
+          <button type="button" data-topup="1000">₹1,000</button>
+
+          <button type="button" data-topup="2500">₹2,500</button>
+
+          <button type="button" data-topup="5000">₹5,000</button>
+
+        </div>
+
+      </div>
+
+      <button class="primary-button full-button" type="button" id="confirm-topup">Add money <svg class="icon"><use href="#i-next"/></svg></button>
+
+      <div class="fineprint"><svg class="icon"><use href="#i-shield"/></svg> Demo only · No real money is moved.</div>
+
+    </section>
+
+  </div>
+
+  <div class="modal-backdrop" id="transfer-review-modal" hidden>
+
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="review-modal-title">
+
+      <button class="modal-close" type="button" data-close-modal="transfer-review-modal" aria-label="Close"><svg class="icon"><use href="#i-close"/></svg></button>
+
+      <span class="stat-icon mint modal-icon"><svg class="icon"><use href="#i-send"/></svg></span>
+
+      <div class="modal-header">
+
+        <div class="eyebrow">CONFIRM SIMULATED TRANSFER</div>
+
+        <h2 id="review-modal-title">Ready to send?</h2>
+
+        <p>Confirming writes a simulated transfer to Oracle and updates both wallet balances atomically.</p>
+
+      </div>
+
+      <div class="review-details">
+
+        <span>Recipient</span><strong id="review-recipient">Recipient email</strong>
+
+        <span>Amount</span><strong id="review-amount" class="highlight-amount">₹ 0.00</strong>
+
+        <span>Note</span><strong id="review-note">—</strong>
+
+        <div class="review-divider"></div>
+
+        <span>Transfer fee</span><strong>₹0.00</strong>
+
+      </div>
+
+      <div class="modal-actions">
+
+        <button class="primary-button full-button" type="button" id="confirm-transfer">Confirm transfer <svg class="icon"><use href="#i-check"/></svg></button>
+
+        <button class="cancel-button" type="button" data-close-modal="transfer-review-modal">Go back</button>
+
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden>
+
+    <span class="toast-check"><svg class="icon"><use href="#i-check"/></svg></span>
+
+    <span id="toast-message" class="toast-msg-text"></span>
+
+    <button type="button" id="dismiss-toast" aria-label="Dismiss notification"><svg class="icon"><use href="#i-close"/></svg></button>
+
+  </div>
+
+  <div class="prototype-stamp"><i></i> MORROW · JDBC / ORACLE</div>
+
+  <script th:src="@{/js/app.js}"></script>
+
+</body>
+
+</html>
